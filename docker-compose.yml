@@ -1,25 +1,25 @@
-version: "3.8"
-
 services:
   frontend:
     container_name: weather_frontend
-    image: node:20-alpine
+    image: node:20-slim # usa la variante glibc multi-arch
+    platform: linux/arm64/v8 # fuerza la misma arch que tu Mac M-series
     working_dir: /app
     volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - ./frontend:/app # código
+      - frontend_node_modules:/app/node_modules # deps aisladas
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=development
-      - VITE_API_URL=http://api:8000
-    command: npm run dev
-    networks:
-      - weather-network
+      NODE_ENV: development
+      VITE_API_URL: http://api:8000
+      ROLLUP_NO_NATIVE: 1 # desactiva el binario nativo
+    command: >
+      sh -c "npm install --include=optional && npm run dev"
     depends_on:
       - api
+    networks:
+      - weather-network
 
-  # Backend
   api:
     container_name: weather_api
     build:
@@ -27,24 +27,23 @@ services:
       target: development
     volumes:
       - ./backend:/usr/src/app
-      - /usr/src/app/node_modules
+      - api_node_modules:/usr/src/app/node_modules
     ports:
       - "8000:3000"
     command: npm run start:dev
     env_file:
       - ./backend/.env
     environment:
-      - DATABASE_HOST=postgres
-      - DATABASE_PORT=5432
-      - DATABASE_USERNAME=postgres
-      - DATABASE_PASSWORD=postgres
-      - DATABASE_NAME=weather_db
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_NAME: weather_db
     depends_on:
       - postgres
     networks:
       - weather-network
 
-  # Base de datos
   postgres:
     container_name: weather_postgres
     image: postgres:14-alpine
@@ -61,7 +60,6 @@ services:
       - weather-network
     restart: unless-stopped
 
-  # Administrador de PostgreSQL
   pgadmin:
     container_name: weather_pgadmin
     image: dpage/pgadmin4
@@ -78,6 +76,8 @@ services:
 
 volumes:
   postgres-data:
+  frontend_node_modules:
+  api_node_modules:
 
 networks:
   weather-network:
