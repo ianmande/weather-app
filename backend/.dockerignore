@@ -1,0 +1,25 @@
+# Dependencias
+node_modules
+npm-debug.log
+
+# Código compilado
+dist
+build
+
+# Control de versiones
+.git
+.gitignore
+
+# Entorno
+.env
+.env.*
+!.env.example
+
+# Otros
+README.md
+.vscode
+.idea
+*.log
+.DS_Store
+coverage
+tmp 

@@ -1,0 +1,10 @@
+
+# Obtener los archivos modificados que se están intentando commitear
+FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E "\.(ts|js)$" | tr '\n' ' ')
+
+if [ -n "$FILES" ]; then
+  # Validar y corregir el código con ESLint solo en los archivos modificados
+  npx eslint $FILES --fix
+  # Agregar los archivos corregidos al staging
+  git add $FILES
+fi

@@ -1,0 +1,9 @@
+{
+  "cSpell.words": ["persistor"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "eslint.alwaysShowStatus": true,
+  "eslint.lintTask.enable": true,
+  "eslint.validate": ["javascript", "typescript"]
+}
