@@ -1,5 +1,8 @@
 FROM node:20-alpine AS development
 
+# Instalar Python y dependencias necesarias para la compilación de módulos nativos
+RUN apk add --no-cache python3 make g++ gcc
+
 # Crear directorio de la aplicación
 WORKDIR /usr/src/app
 
@@ -22,6 +25,9 @@ FROM node:20-alpine AS production
 # Variables de entorno para producción
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
+
+# Instalar Python y dependencias necesarias para la compilación de módulos nativos
+RUN apk add --no-cache python3 make g++ gcc
 
 # Crear directorio de la aplicación
 WORKDIR /usr/src/app

@@ -1,19 +1,38 @@
-version: '3.8'
+version: "3.8"
 
 services:
+  frontend:
+    container_name: weather_frontend
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://api:8000
+    command: npm run dev
+    networks:
+      - weather-network
+    depends_on:
+      - api
+
+  # Backend
   api:
     container_name: weather_api
     build:
-      context: .
+      context: ./backend
       target: development
     volumes:
-      - .:/usr/src/app
+      - ./backend:/usr/src/app
       - /usr/src/app/node_modules
     ports:
-      - '3000:3000'
+      - "8000:3000"
     command: npm run start:dev
     env_file:
-      - .env
+      - ./backend/.env
     environment:
       - DATABASE_HOST=postgres
       - DATABASE_PORT=5432
@@ -25,6 +44,7 @@ services:
     networks:
       - weather-network
 
+  # Base de datos
   postgres:
     container_name: weather_postgres
     image: postgres:14-alpine
@@ -34,13 +54,14 @@ services:
       POSTGRES_DB: weather_db
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
       - weather-network
     restart: unless-stopped
 
+  # Administrador de PostgreSQL
   pgadmin:
     container_name: weather_pgadmin
     image: dpage/pgadmin4
@@ -48,7 +69,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
-      - '5050:80'
+      - "5050:80"
     depends_on:
       - postgres
     networks:
